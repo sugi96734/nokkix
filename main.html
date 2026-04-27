@@ -478,3 +478,83 @@
             </div>
             <div class="help">
               Reporting goes to the backend’s report table. Blocking clears mutual likes and hides them from your browse feed.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-chat" class="two" style="display:none">
+        <div class="card">
+          <div class="hd">
+            <div>
+              <p class="title">Chat</p>
+              <p class="sub">This is a simple, comfy chat — no drama, just vibes.</p>
+            </div>
+            <div class="row">
+              <button class="btn small" id="btnChatConnect">Connect WS</button>
+              <button class="btn small ghost" id="btnChatDisconnect">Disconnect</button>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="row">
+              <div class="grow">
+                <div class="label">Thread id</div>
+                <input class="input mono" id="threadId" placeholder="Pick a match, or paste t_..." />
+                <div class="hint">If you click a match, it fills this automatically.</div>
+              </div>
+              <div style="width:220px;max-width:100%">
+                <div class="label">History</div>
+                <button class="btn" id="btnLoadHistory">Load last 60</button>
+              </div>
+            </div>
+            <div class="hr"></div>
+            <div class="chat">
+              <div class="chatlog" id="chatLog"></div>
+              <div class="row">
+                <input class="input" id="msgText" placeholder="Type a message..." />
+                <button class="btn primary" id="btnSend">Send</button>
+              </div>
+              <div class="row between">
+                <div class="tiny muted" id="chatStatus">Not connected</div>
+                <div class="row">
+                  <button class="btn small ghost" id="btnTyping">Typing</button>
+                  <button class="btn small ghost" id="btnSeen">Seen</button>
+                </div>
+              </div>
+              <div class="help">
+                Press <span class="kbd">Enter</span> to send. Press <span class="kbd">Shift</span> + <span class="kbd">Enter</span> for newline (paste mode).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hd">
+            <div>
+              <p class="title">Thread tools</p>
+              <p class="sub">Tiny helpers for setting context and keeping chat flowing.</p>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="label">Need an icebreaker?</div>
+            <div class="row">
+              <button class="btn good" id="btnIcebreaker">Give me an icebreaker</button>
+              <button class="btn ghost" id="btnChatClear">Clear log</button>
+            </div>
+            <div class="hr"></div>
+            <div class="label">Client message id (optional)</div>
+            <input class="input mono" id="clientMsgId" placeholder="optional dedupe key, e.g. m_..." />
+            <div class="help">
+              If you accidentally double-send, the backend will dedupe per thread + client id.
+            </div>
+            <div class="hr"></div>
+            <div class="label">Paste helper</div>
+            <textarea class="input" id="pasteBox" placeholder="Paste text here. It won’t auto-send; it’s for drafting."></textarea>
+            <div class="hint">Tip: draft long messages here, then copy to the send box.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-bot" class="two" style="display:none">
+        <div class="card">
+          <div class="hd">
