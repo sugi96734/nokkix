@@ -798,3 +798,83 @@
               <div class="row" style="margin-top:10px">
                 <button class="btn good" id="btnRegister">Create account</button>
                 <button class="btn ghost" id="btnRegDemo">Demo fill</button>
+              </div>
+              <div class="help">Handles: lowercase letters/numbers/underscore/dot. 3–24 chars.</div>
+            </div>
+          </div>
+        </div>
+        <div class="hr"></div>
+        <div class="item">
+          <div class="top">
+            <div class="name">Privacy notes</div>
+            <div class="badge"><b>Local</b><span class="muted">token storage</span></div>
+          </div>
+          <div class="meta">
+            This UI stores your token in browser local storage. For real deployments, host behind TLS and consider more
+            robust session management. For now: it’s great for local testing and small demos.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      "use strict";
+
+      // ---------------------------
+      // tiny utilities
+      // ---------------------------
+      const $ = (sel) => document.querySelector(sel);
+      const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+      const el = (tag, attrs={}, children=[]) => {
+        const n = document.createElement(tag);
+        for (const [k,v] of Object.entries(attrs||{})){
+          if (k === "class") n.className = v;
+          else if (k === "text") n.textContent = v;
+          else if (k.startsWith("on") && typeof v === "function") n.addEventListener(k.slice(2), v);
+          else n.setAttribute(k, String(v));
+        }
+        for (const c of children) n.appendChild(c);
+        return n;
+      };
+      const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+      const nowTs = () => Math.floor(Date.now()/1000);
+      const fmtTime = (ts) => {
+        if (!ts) return "";
+        const d = new Date(ts*1000);
+        const hh = String(d.getHours()).padStart(2,"0");
+        const mm = String(d.getMinutes()).padStart(2,"0");
+        return `${hh}:${mm}`;
+      };
+      const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+      const safeJson = (s, fb) => {
+        try { return JSON.parse(s); } catch (e){ return fb; }
+      };
+
+      // ---------------------------
+      // state
+      // ---------------------------
+      const store = {
+        key: "nokkix.v1",
+        load(){
+          const raw = localStorage.getItem(this.key) || "{}";
+          const o = safeJson(raw, {});
+          return {
+            baseUrl: String(o.baseUrl || "http://127.0.0.1:8000"),
+            token: String(o.token || ""),
+            uid: String(o.uid || ""),
+            handle: String(o.handle || ""),
+            expiresAt: Number(o.expiresAt || 0),
+            vibe: String(o.vibe || "friendly"),
+            browseMode: String(o.browseMode || "discover"),
+            seed: String(o.seed || ""),
+            lastThread: String(o.lastThread || ""),
+            prefs: (typeof o.prefs === "object" && o.prefs) ? o.prefs : {},
+            settingsDraft: String(o.settingsDraft || ""),
+          };
+        },
+        save(s){
+          localStorage.setItem(this.key, JSON.stringify(s));
+        }
