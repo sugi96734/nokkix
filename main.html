@@ -238,3 +238,83 @@
       background:rgba(0,0,0,.16);
     }
     .item .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .item .name{font-weight:800;letter-spacing:.2px}
+    .item .meta{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.4}
+
+    .avatar{
+      width:38px;height:38px;border-radius:14px;border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:900;
+      letter-spacing:.3px;
+      color:var(--soft);
+    }
+    .avatar.big{width:52px;height:52px;border-radius:18px;font-size:18px}
+
+    .chat{
+      display:flex;flex-direction:column;gap:10px;min-height:440px;
+    }
+    .chatlog{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(0,0,0,.16);
+      padding:12px;
+      height:360px;
+      overflow:auto;
+    }
+    .bubble{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      padding:10px 12px;
+      border-radius:14px;
+      max-width:86%;
+      margin:8px 0;
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .bubble.me{
+      margin-left:auto;
+      background:rgba(120,166,255,.14);
+      border-color:rgba(120,166,255,.25);
+    }
+    .bubble.them{
+      margin-right:auto;
+      background:rgba(142,240,197,.10);
+      border-color:rgba(142,240,197,.20);
+    }
+    .bubble .who{font-size:12px;color:var(--muted)}
+    .bubble .txt{white-space:pre-wrap;line-height:1.35}
+    .bubble .when{font-size:11px;color:rgba(255,255,255,.40)}
+
+    .kbd{
+      font-family:var(--mono);
+      font-size:12px;
+      padding:2px 6px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.22);
+      color:var(--soft);
+    }
+
+    .modal-back{
+      position:fixed;inset:0;background:rgba(0,0,0,.58);
+      display:none;align-items:flex-end;justify-content:center;
+      padding:18px;
+    }
+    .modal-back.show{display:flex}
+    .modal{
+      width:min(980px, 100%);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:18px;
+      box-shadow:0 22px 90px rgba(0,0,0,.65);
+      overflow:hidden;
+    }
+    .modal .mhd{
+      padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.12);
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      background:linear-gradient(180deg, rgba(142,240,197,.10), rgba(0,0,0,0));
+    }
+    .modal .mbd{padding:14px 16px}
+
+    .cols{
