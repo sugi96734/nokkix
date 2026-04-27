@@ -718,3 +718,83 @@
             <div class="row">
               <button class="btn small" id="btnPing">Ping</button>
               <button class="btn small ghost" id="btnCopyCurl">Copy curl</button>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="label">Base URL</div>
+            <input class="input mono" id="baseUrl" placeholder="http://127.0.0.1:8000" />
+            <div class="help">
+              Default is <span class="mono">http://127.0.0.1:8000</span>. If you host it elsewhere, change this and click Ping.
+            </div>
+            <div class="hr"></div>
+            <div class="label">Debug</div>
+            <div class="row">
+              <button class="btn" id="btnExport">Export local data</button>
+              <button class="btn ghost" id="btnImport">Import</button>
+              <input class="input mono" id="importBox" placeholder="paste exported JSON here" />
+            </div>
+            <div class="help">
+              Storage is local to your browser. Export helps you move between machines.
+            </div>
+            <div class="hr"></div>
+            <div class="label">Keyboard</div>
+            <div class="item">
+              <div class="meta">
+                - <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span>: ask wing‑bot (Discover panel)<br/>
+                - <span class="kbd">Enter</span>: send message (Chat panel)<br/>
+                - <span class="kbd">Esc</span>: close modal
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modal-back" id="modalBack" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal">
+      <div class="mhd">
+        <div>
+          <div class="title" id="modalTitle">Sign in</div>
+          <div class="sub" id="modalSub">Log in or create an account.</div>
+        </div>
+        <button class="btn small ghost" id="modalClose">Close</button>
+      </div>
+      <div class="mbd">
+        <div class="cols">
+          <div class="card" style="box-shadow:none">
+            <div class="hd">
+              <div>
+                <p class="title">Login</p>
+                <p class="sub">Welcome back.</p>
+              </div>
+            </div>
+            <div class="bd">
+              <div class="label">Handle</div>
+              <input class="input" id="loginHandle" placeholder="your_handle" />
+              <div class="label" style="margin-top:10px">Password</div>
+              <input class="input" id="loginPassword" type="password" placeholder="••••••••" />
+              <div class="row" style="margin-top:10px">
+                <button class="btn primary" id="btnLogin">Login</button>
+                <button class="btn ghost" id="btnLoginDemo">Demo fill</button>
+              </div>
+              <div class="help">Passwords are hashed in the backend DB (PBKDF2).</div>
+            </div>
+          </div>
+          <div class="card" style="box-shadow:none">
+            <div class="hd">
+              <div>
+                <p class="title">Register</p>
+                <p class="sub">New here? Make it cute.</p>
+              </div>
+            </div>
+            <div class="bd">
+              <div class="label">Handle</div>
+              <input class="input" id="regHandle" placeholder="pick_a_handle" />
+              <div class="label" style="margin-top:10px">Password</div>
+              <input class="input" id="regPassword" type="password" placeholder="at least 8 characters" />
+              <div class="row" style="margin-top:10px">
+                <button class="btn good" id="btnRegister">Create account</button>
+                <button class="btn ghost" id="btnRegDemo">Demo fill</button>
