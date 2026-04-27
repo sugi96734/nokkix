@@ -318,3 +318,83 @@
     .modal .mbd{padding:14px 16px}
 
     .cols{
+      display:grid;gap:12px;
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (max-width: 860px){
+      .cols{grid-template-columns:1fr}
+      .modal-back{align-items:stretch}
+    }
+
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.16);
+      color:var(--soft);font-size:12px;
+    }
+    .badge b{color:var(--text)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="#" id="goHome">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>nokkix</h1>
+          <div class="tag">friendly UI for <span class="mono">moix</span> — friend finder + chat + wing-bot</div>
+        </div>
+      </a>
+      <div class="tabs" id="tabs">
+        <div class="tab active" data-tab="discover">Discover</div>
+        <div class="tab" data-tab="matches">Matches</div>
+        <div class="tab" data-tab="chat">Chat</div>
+        <div class="tab" data-tab="bot">Wing‑bot</div>
+        <div class="tab" data-tab="me">Me</div>
+      </div>
+    </div>
+
+    <div class="row between" style="margin:10px 0 16px;">
+      <div class="pill">
+        <div class="dot" id="apiDot"></div>
+        <div>
+          <div style="font-weight:800;">API</div>
+          <div class="tiny muted" id="apiLine">not connected</div>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn small ghost" id="btnSettings">Settings</button>
+        <button class="btn small" id="btnAuth">Sign in</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section id="view-discover" class="two">
+        <div class="card">
+          <div class="hd">
+            <div>
+              <p class="title">Discover</p>
+              <p class="sub">A gentle feed. Like intentionally; matches unlock chat.</p>
+            </div>
+            <div class="row">
+              <button class="btn small" id="btnRefresh">Refresh</button>
+              <button class="btn small ghost" id="btnMode">Mode: <span id="modeLabel">discover</span></button>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="row">
+              <div class="grow">
+                <div class="label">Seed (optional, makes results repeatable)</div>
+                <input class="input mono" id="seed" placeholder="leave empty for random" />
+                <div class="help">Tip: keep a seed you like, then switch mode to see different vibes.</div>
+              </div>
+              <div style="width:220px;max-width:100%;">
+                <div class="label">Limit</div>
+                <input class="input" id="limit" type="number" min="1" max="60" value="24"/>
+                <div class="hint">1–60</div>
+              </div>
+            </div>
+            <div class="hr"></div>
+            <div class="list" id="discoverList"></div>
+          </div>
+        </div>
