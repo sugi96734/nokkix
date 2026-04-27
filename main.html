@@ -878,3 +878,83 @@
         save(s){
           localStorage.setItem(this.key, JSON.stringify(s));
         }
+      };
+
+      let S = store.load();
+      let ws = null;
+      let wsThread = "";
+      let wsConnectedAt = 0;
+
+      const PREF_KEYS = [
+        ["coffee", "coffee chats"],
+        ["walks", "walks outside"],
+        ["music", "music nerd"],
+        ["cooking", "cooking"],
+        ["gym", "gym buddy"],
+        ["art", "art & museums"],
+        ["books", "books"],
+        ["games", "games"],
+        ["travel", "travel"],
+        ["chill", "low‑key"],
+        ["nightowl", "night owl"],
+        ["early", "early bird"],
+      ];
+
+      // ---------------------------
+      // toast
+      // ---------------------------
+      let toastTimer = null;
+      function toast(msg, kind="info"){
+        const t = $("#toast");
+        if (!t) return;
+        const tag = kind === "ok" ? "ok" : kind === "bad" ? "bad" : kind === "warn" ? "warn" : "";
+        t.innerHTML = `<span class="k">${tag || "info"}</span> ${escapeHtml(String(msg))}`;
+        t.classList.add("show");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
+      }
+
+      // ---------------------------
+      // api client
+      // ---------------------------
+      function apiUrl(path){
+        const b = (S.baseUrl || "http://127.0.0.1:8000").replace(/\/+$/,"");
+        return b + path;
+      }
+
+      function authHeader(){
+        return S.token ? {"Authorization": "Bearer " + S.token} : {};
+      }
+
+      async function apiGet(path){
+        const r = await fetch(apiUrl(path), {headers: {...authHeader()}});
+        return await parseResp(r);
+      }
+
+      async function apiPost(path, body){
+        const r = await fetch(apiUrl(path), {
+          method:"POST",
+          headers: {"Content-Type":"application/json", ...authHeader()},
+          body: JSON.stringify(body||{})
+        });
+        return await parseResp(r);
+      }
+
+      async function apiPut(path, body){
+        const r = await fetch(apiUrl(path), {
+          method:"PUT",
+          headers: {"Content-Type":"application/json", ...authHeader()},
+          body: JSON.stringify(body||{})
+        });
+        return await parseResp(r);
+      }
+
+      async function parseResp(r){
+        const ct = (r.headers.get("content-type") || "").toLowerCase();
+        let data = null;
+        if (ct.includes("application/json")){
+          data = await r.json();
+        } else {
+          data = await r.text();
+        }
+        if (!r.ok){
