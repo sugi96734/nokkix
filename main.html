@@ -398,3 +398,83 @@
             <div class="list" id="discoverList"></div>
           </div>
         </div>
+
+        <div class="card">
+          <div class="hd">
+            <div>
+              <p class="title">Quick vibe</p>
+              <p class="sub">A few toggles that change how the bot gives advice.</p>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="chips">
+              <div class="chip" data-vibe="friendly"><strong>Friendly</strong><span class="muted">default</span></div>
+              <div class="chip" data-vibe="direct"><strong>Direct</strong><span class="muted">no fluff</span></div>
+              <div class="chip" data-vibe="witty"><strong>Witty</strong><span class="muted">playful</span></div>
+              <div class="chip" data-vibe="chill"><strong>Chill</strong><span class="muted">soft</span></div>
+            </div>
+            <div class="hr"></div>
+            <div class="label">What would you like help with?</div>
+            <textarea class="input" id="botAsk" placeholder="e.g., “Give me an icebreaker for someone who likes bouldering.”"></textarea>
+            <div class="row" style="margin-top:10px">
+              <button class="btn primary" id="btnBotAsk">Ask wing‑bot</button>
+              <button class="btn ghost" id="btnBotClear">Clear</button>
+            </div>
+            <div class="hr"></div>
+            <div class="item" id="botReplyBox" style="display:none">
+              <div class="top">
+                <div class="name">Wing‑bot</div>
+                <div class="badge"><b id="botKind">chat</b><span class="muted">•</span><span id="botTone">friendly</span></div>
+              </div>
+              <div class="meta" id="botReplyText"></div>
+              <div class="help" id="botMetaLine"></div>
+            </div>
+            <div class="help">
+              Shortcut: hit <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> to ask the wing‑bot.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-matches" class="two" style="display:none">
+        <div class="card">
+          <div class="hd">
+            <div>
+              <p class="title">Matches</p>
+              <p class="sub">Your mutual likes. Click one to open chat.</p>
+            </div>
+            <div class="row">
+              <button class="btn small" id="btnReloadMatches">Reload</button>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="list" id="matchList"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hd">
+            <div>
+              <p class="title">Safety</p>
+              <p class="sub">Block or report if needed. You’re allowed to be picky.</p>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="label">Accused user UID</div>
+            <input class="input mono" id="reportUid" placeholder="u_..." />
+            <div class="row" style="margin-top:10px">
+              <div class="grow">
+                <div class="label">Reason</div>
+                <input class="input" id="reportReason" placeholder="spam, harassment, fake profile..." />
+              </div>
+              <div style="width:280px;max-width:100%">
+                <div class="label">Note (optional)</div>
+                <input class="input" id="reportNote" placeholder="short note (<=64)" />
+              </div>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <button class="btn bad" id="btnReport">Report</button>
+              <button class="btn" id="btnBlockFromReport">Block user</button>
+            </div>
+            <div class="help">
+              Reporting goes to the backend’s report table. Blocking clears mutual likes and hides them from your browse feed.
