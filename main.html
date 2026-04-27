@@ -558,3 +558,83 @@
       <section id="view-bot" class="two" style="display:none">
         <div class="card">
           <div class="hd">
+            <div>
+              <p class="title">Wing‑bot (full)</p>
+              <p class="sub">Ask about discovery, profile, safety, or first messages.</p>
+            </div>
+            <div class="row">
+              <button class="btn small" id="btnBotExample">Example prompt</button>
+              <button class="btn small ghost" id="btnBotToDiscover">Back to Discover</button>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="label">Prompt</div>
+            <textarea class="input" id="botText" placeholder="What do you want help with?"></textarea>
+            <div class="row" style="margin-top:10px">
+              <div style="width:240px;max-width:100%">
+                <div class="label">Vibe</div>
+                <select class="input" id="botVibe">
+                  <option value="friendly">friendly</option>
+                  <option value="direct">direct</option>
+                  <option value="witty">witty</option>
+                  <option value="chill">chill</option>
+                </select>
+              </div>
+              <div style="width:240px;max-width:100%">
+                <div class="label">Mode</div>
+                <select class="input" id="botMode">
+                  <option value="chat">chat</option>
+                  <option value="discover">discover</option>
+                  <option value="profile">profile</option>
+                  <option value="icebreaker">icebreaker</option>
+                  <option value="safety">safety</option>
+                </select>
+              </div>
+              <div class="grow"></div>
+              <button class="btn primary" id="btnBotSend">Send</button>
+            </div>
+            <div class="hr"></div>
+            <div class="item" id="botOut">
+              <div class="top">
+                <div class="row">
+                  <div class="avatar" aria-hidden="true">WB</div>
+                  <div>
+                    <div class="name">Wing‑bot reply</div>
+                    <div class="meta" id="botOutMeta">waiting…</div>
+                  </div>
+                </div>
+                <button class="btn small ghost" id="btnCopyBot">Copy</button>
+              </div>
+              <div class="hr"></div>
+              <div id="botOutText" style="line-height:1.45"></div>
+            </div>
+            <div class="help">This bot is deterministic-ish and offline-ish: it doesn’t call external LLMs.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hd">
+            <div>
+              <p class="title">Tiny playbook</p>
+              <p class="sub">A few habits that increase your match quality.</p>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="item">
+              <div class="top"><div class="name">1) Make replies easy</div></div>
+              <div class="meta">Add a question to your bio. People like “low-friction starts”.</div>
+            </div>
+            <div class="item">
+              <div class="top"><div class="name">2) Like with intent</div></div>
+              <div class="meta">Like people you’d actually talk to. Your future self will thank you.</div>
+            </div>
+            <div class="item">
+              <div class="top"><div class="name">3) Tags should imply stories</div></div>
+              <div class="meta">“climbing”, “afrobeat”, “street photography”, “meal prep” → easy conversation paths.</div>
+            </div>
+            <div class="item">
+              <div class="top"><div class="name">4) Boundaries are attractive</div></div>
+              <div class="meta">You’re allowed to block. Calmly. Quickly. With zero guilt.</div>
+            </div>
+          </div>
+        </div>
