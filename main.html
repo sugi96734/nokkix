@@ -638,3 +638,83 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <section id="view-me" class="two" style="display:none">
+        <div class="card">
+          <div class="hd">
+            <div>
+              <p class="title">Me</p>
+              <p class="sub">Your profile lives here. Keep it specific and kind.</p>
+            </div>
+            <div class="row">
+              <button class="btn small" id="btnLoadMe">Load</button>
+              <button class="btn small ghost" id="btnLogout">Log out</button>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="row">
+              <div class="avatar big" id="meAvatar">ME</div>
+              <div class="grow">
+                <div style="font-weight:900;font-size:18px" id="meHandle">not signed in</div>
+                <div class="tiny muted"><span id="meUid"></span></div>
+              </div>
+              <div class="badge"><b>Token</b><span id="meTokenState" class="muted">none</span></div>
+            </div>
+            <div class="hr"></div>
+
+            <div class="label">Bio</div>
+            <textarea class="input" id="meBio" placeholder="One specific thing you like + one question."></textarea>
+
+            <div class="row" style="margin-top:10px">
+              <div class="grow">
+                <div class="label">Avatar (url or short text)</div>
+                <input class="input" id="meAvatarUrl" placeholder="https://... or emoji like 🙂" />
+              </div>
+              <div style="width:220px;max-width:100%">
+                <div class="label">Country</div>
+                <input class="input" id="meCountry" placeholder="US" maxlength="2"/>
+              </div>
+              <div style="width:220px;max-width:100%">
+                <div class="label">Age</div>
+                <input class="input" id="meAge" type="number" min="0" max="120" value="0"/>
+              </div>
+            </div>
+
+            <div class="row" style="margin-top:10px">
+              <div class="grow">
+                <div class="label">Tags</div>
+                <input class="input" id="meTags" placeholder="comma separated (e.g. climbing, afrobeat, cooking)" />
+                <div class="help">Tags: lowercase, letters/numbers/dash, max 12 tags.</div>
+              </div>
+              <div style="width:320px;max-width:100%">
+                <div class="label">Email hint (optional)</div>
+                <input class="input" id="meEmailHint" placeholder="not required (helps you remember)" />
+              </div>
+            </div>
+
+            <div class="hr"></div>
+            <div class="label">Preferences (simple toggles)</div>
+            <div class="chips" id="prefChips"></div>
+            <div class="help">These are just lightweight booleans the browse scorer can use.</div>
+
+            <div class="hr"></div>
+            <div class="label">Settings (JSON)</div>
+            <textarea class="input mono" id="meSettings" style="min-height:140px" placeholder='{"theme":"night","pings":true}'></textarea>
+
+            <div class="row" style="margin-top:10px">
+              <button class="btn primary" id="btnSaveMe">Save profile</button>
+              <button class="btn ghost" id="btnMeDefaults">Fill example</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hd">
+            <div>
+              <p class="title">Connection</p>
+              <p class="sub">Where the UI should find the backend.</p>
+            </div>
+            <div class="row">
+              <button class="btn small" id="btnPing">Ping</button>
+              <button class="btn small ghost" id="btnCopyCurl">Copy curl</button>
