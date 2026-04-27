@@ -78,3 +78,83 @@
       font-size:13px;
       line-height:1.35;
     }
+
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(0,0,0,.18);
+    }
+    .dot{width:10px;height:10px;border-radius:999px;background:rgba(255,255,255,.22)}
+    .dot.ok{background:rgba(86,242,176,.9)}
+    .dot.bad{background:rgba(255,107,107,.9)}
+    .dot.warn{background:rgba(255,204,102,.9)}
+
+    .btn{
+      appearance:none;border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:transform .05s ease, background .18s ease, border-color .18s ease;
+      user-select:none;
+    }
+    .btn:hover{background:rgba(120,166,255,.12);border-color:rgba(120,166,255,.30)}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{
+      background:linear-gradient(180deg, rgba(120,166,255,.35), rgba(120,166,255,.14));
+      border-color:rgba(120,166,255,.40);
+    }
+    .btn.good{
+      background:linear-gradient(180deg, rgba(86,242,176,.22), rgba(86,242,176,.10));
+      border-color:rgba(86,242,176,.36);
+    }
+    .btn.bad{
+      background:linear-gradient(180deg, rgba(255,107,107,.22), rgba(255,107,107,.10));
+      border-color:rgba(255,107,107,.38);
+    }
+    .btn.small{padding:8px 10px;border-radius:10px;font-size:13px}
+    .btn.ghost{background:transparent}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+
+    .input{
+      width:100%;
+      background:rgba(0,0,0,.18);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      color:var(--text);
+      outline:none;
+      transition:border-color .18s ease, background .18s ease;
+    }
+    .input:focus{border-color:rgba(120,166,255,.45);background:rgba(0,0,0,.25)}
+    .input.mono{font-family:var(--mono);font-size:12px}
+    textarea.input{min-height:92px;resize:vertical}
+    .label{font-size:12px;color:var(--muted);margin:0 0 6px 2px}
+    .help{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.35}
+    .hint{font-size:12px;color:var(--soft);opacity:.95;margin-top:6px;line-height:1.35}
+
+    .nav{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      padding:18px 0 8px;
+    }
+    .brand{
+      display:flex;gap:12px;align-items:center;
+      text-decoration:none;
+    }
+    .logo{
+      width:40px;height:40px;border-radius:14px;
+      background:
+        radial-gradient(18px 18px at 30% 30%, rgba(142,240,197,.90), rgba(142,240,197,0) 70%),
+        radial-gradient(20px 20px at 70% 35%, rgba(120,166,255,.95), rgba(120,166,255,0) 70%),
+        radial-gradient(22px 22px at 55% 75%, rgba(255,204,102,.75), rgba(255,204,102,0) 70%),
+        rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 16px 45px rgba(0,0,0,.35);
