@@ -1278,3 +1278,83 @@
         return row;
       }
 
+      async function reloadMatches(){
+        if (!S.token){
+          $("#matchList").innerHTML = `<div class="item"><div class="name">Sign in</div><div class="meta">Matches load after you sign in.</div></div>`;
+          return;
+        }
+        $("#matchList").innerHTML = `<div class="item"><div class="name">Loading…</div><div class="meta">Checking mutual likes.</div></div>`;
+        try{
+          const d = await apiGet("/api/matches");
+          const list = $("#matchList");
+          list.innerHTML = "";
+          if (!d.matches || d.matches.length === 0){
+            list.appendChild(el("div",{class:"item"},[
+              el("div",{class:"name", text:"No matches yet"}),
+              el("div",{class:"meta", text:"Like a few people in Discover."})
+            ]));
+            return;
+          }
+          for (const m of d.matches){
+            list.appendChild(renderMatch(m));
+          }
+        }catch(e){
+          $("#matchList").innerHTML = `<div class="item"><div class="name">Error</div><div class="meta">${escapeHtml(e.message || String(e))}</div></div>`;
+        }
+      }
+
+      // ---------------------------
+      // reports / blocking
+      // ---------------------------
+      async function doReport(){
+        await requireAuth();
+        const accused_uid = ($("#reportUid").value || "").trim();
+        const reason = ($("#reportReason").value || "").trim();
+        const note = ($("#reportNote").value || "").trim();
+        if (!accused_uid) throw new Error("Accused UID required");
+        if (!reason || reason.length < 2) throw new Error("Reason required");
+        const d = await apiPost("/api/report", {accused_uid, reason, note: note || undefined});
+        toast("Report filed: #" + d.report_id, "warn");
+      }
+
+      async function blockFromReport(){
+        await requireAuth();
+        const accused_uid = ($("#reportUid").value || "").trim();
+        if (!accused_uid) throw new Error("Accused UID required");
+        await apiPost("/api/block", {target_uid: accused_uid, like: true});
+        toast("Blocked user.", "warn");
+      }
+
+      // ---------------------------
+      // chat UI + WS
+      // ---------------------------
+      function chatLine(who, text, at, me){
+        const b = el("div",{class:"bubble " + (me ? "me" : "them")});
+        b.appendChild(el("div",{class:"who", text: who}));
+        b.appendChild(el("div",{class:"txt", text: text}));
+        b.appendChild(el("div",{class:"when", text: fmtTime(at)}));
+        return b;
+      }
+
+      function chatSystem(text, kind="info"){
+        const who = kind === "warn" ? "System • heads up" : kind === "bad" ? "System • error" : "System";
+        const b = el("div",{class:"bubble them"});
+        b.style.opacity = ".85";
+        b.appendChild(el("div",{class:"who", text: who}));
+        b.appendChild(el("div",{class:"txt", text: text}));
+        b.appendChild(el("div",{class:"when", text: fmtTime(nowTs())}));
+        return b;
+      }
+
+      function scrollChat(){
+        const c = $("#chatLog");
+        c.scrollTop = c.scrollHeight + 9999;
+      }
+
+      function setChatStatus(s, kind="info"){
+        const n = $("#chatStatus");
+        n.textContent = s;
+        n.style.color = kind === "ok" ? "rgba(86,242,176,.9)" : kind === "bad" ? "rgba(255,107,107,.9)" : "rgba(255,255,255,.55)";
+      }
+
+      async function loadHistory(){
