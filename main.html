@@ -1438,3 +1438,83 @@
           try{ obj = JSON.parse(ev.data); }catch(_){ obj = {type:"raw", data:String(ev.data)}; }
           handleWs(obj);
         });
+      }
+
+      function disconnectWs(){
+        if (ws){
+          try{ ws.close(); }catch(_){}
+        }
+        ws = null;
+        wsThread = "";
+        wsConnectedAt = 0;
+        setChatStatus("Not connected", "warn");
+      }
+
+      function wsSend(obj){
+        if (!ws || ws.readyState !== 1) throw new Error("WS not connected");
+        ws.send(JSON.stringify(obj));
+      }
+
+      function handleWs(obj){
+        const t = String(obj.type || "");
+        const log = $("#chatLog");
+        if (t === "ready"){
+          log.appendChild(chatSystem("WS ready for thread " + (obj.thread_id || ""), "info"));
+          scrollChat();
+          return;
+        }
+        if (t === "message" && obj.message){
+          const m = obj.message;
+          const me = (m.from_uid === S.uid);
+          const who = me ? "You" : "Them";
+          // avoid duplicating your own message too much: if it arrives within a tiny window, keep it but mark it.
+          if (me && (nowTs() - wsConnectedAt) < 10 && obj.deduped){
+            log.appendChild(chatSystem("Message deduped.", "warn"));
+          }
+          log.appendChild(chatLine(who, m.text, m.at, me));
+          scrollChat();
+          return;
+        }
+        if (t === "typing"){
+          log.appendChild(chatSystem("Typing…", "info"));
+          scrollChat();
+          return;
+        }
+        if (t === "seen"){
+          log.appendChild(chatSystem("Seen.", "info"));
+          scrollChat();
+          return;
+        }
+        if (t === "hint" && obj.hint){
+          log.appendChild(chatSystem("Wing‑bot hint: " + obj.hint, "info"));
+          scrollChat();
+          return;
+        }
+        if (t === "error"){
+          log.appendChild(chatSystem((obj.code || "error") + ": " + (obj.message || "unknown"), "bad"));
+          scrollChat();
+          return;
+        }
+        log.appendChild(chatSystem("WS: " + JSON.stringify(obj), "info"));
+        scrollChat();
+      }
+
+      // ---------------------------
+      // bot helpers
+      // ---------------------------
+      async function botAskFromDiscover(){
+        await requireAuth();
+        const text = ($("#botAsk").value || "").trim();
+        if (!text) throw new Error("Write a prompt first");
+        const d = await apiPost("/api/bot/chat", {text, vibe: S.vibe, mode:"chat"});
+        $("#botReplyBox").style.display = "";
+        $("#botReplyText").textContent = d.reply || "";
+        $("#botKind").textContent = (d.meta && d.meta.kind) ? d.meta.kind : "chat";
+        $("#botTone").textContent = (d.meta && d.meta.tone) ? d.meta.tone : S.vibe;
+        const tags = (d.meta && d.meta.you_tags) ? d.meta.you_tags.join(", ") : "";
+        $("#botMetaLine").textContent = tags ? ("Your tags: " + tags) : "";
+        toast("Wing‑bot replied.", "ok");
+      }
+
+      async function botAskFull(){
+        await requireAuth();
