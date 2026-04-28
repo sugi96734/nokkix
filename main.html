@@ -1758,3 +1758,83 @@
         $("#seed").addEventListener("change", () => {
           const s = ($("#seed").value || "").trim();
           S.seed = s;
+          store.save(S);
+        });
+        $("#limit").addEventListener("change", () => {
+          const n = clamp(parseInt($("#limit").value || "24",10) || 24, 1, 60);
+          $("#limit").value = String(n);
+        });
+
+        // wing-bot from discover
+        $$(".chip[data-vibe]").forEach(c => c.addEventListener("click", () => {
+          const v = c.dataset.vibe;
+          S.vibe = v;
+          store.save(S);
+          toast("Bot vibe: " + v, "ok");
+        }));
+        $("#btnBotAsk").addEventListener("click", async () => {
+          try{ await botAskFromDiscover(); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+        $("#btnBotClear").addEventListener("click", () => {
+          $("#botAsk").value = "";
+          $("#botReplyBox").style.display = "none";
+        });
+        $("#botAsk").addEventListener("keydown", async (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key === "Enter"){
+            e.preventDefault();
+            try{ await botAskFromDiscover(); }catch(err){ toast(err.message || String(err), "bad"); }
+          }
+        });
+
+        // matches
+        $("#btnReloadMatches").addEventListener("click", () => reloadMatches());
+        $("#btnReport").addEventListener("click", async () => {
+          try{ await doReport(); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+        $("#btnBlockFromReport").addEventListener("click", async () => {
+          try{ await blockFromReport(); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+
+        // chat
+        $("#btnLoadHistory").addEventListener("click", async () => {
+          try{ await loadHistory(); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+        $("#btnSend").addEventListener("click", async () => {
+          try{ await sendMessage(); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+        $("#msgText").addEventListener("keydown", async (e) => {
+          if (e.key === "Enter" && !e.shiftKey){
+            e.preventDefault();
+            try{ await sendMessage(); }catch(err){ toast(err.message || String(err), "bad"); }
+          }
+        });
+        $("#btnChatConnect").addEventListener("click", async () => {
+          try{ await connectWs(); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+        $("#btnChatDisconnect").addEventListener("click", () => {
+          disconnectWs();
+          toast("WS disconnected.", "warn");
+        });
+        $("#btnTyping").addEventListener("click", () => {
+          try{ wsSend({type:"typing"}); toast("typing…", "ok"); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+        $("#btnSeen").addEventListener("click", () => {
+          try{ wsSend({type:"seen"}); toast("seen.", "ok"); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+        $("#btnChatClear").addEventListener("click", () => {
+          $("#chatLog").innerHTML = "";
+          toast("Cleared.", "ok");
+        });
+        $("#btnIcebreaker").addEventListener("click", async () => {
+          try{
+            await requireAuth();
+            const tid = ($("#threadId").value || "").trim();
+            if (!tid) throw new Error("Thread id required");
+            const prompt = "Give me a friendly icebreaker for this match.";
+            const d = await apiPost("/api/bot/chat", {text: prompt, vibe: S.vibe, mode:"icebreaker"});
+            $("#chatLog").appendChild(chatSystem("Wing‑bot: " + (d.reply || ""), "info"));
+            scrollChat();
+            toast("Icebreaker added.", "ok");
+          }catch(e){
+            toast(e.message || String(e), "bad");
+          }
