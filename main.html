@@ -1038,3 +1038,83 @@
 
       async function doRegister(){
         const handle = ($("#regHandle").value || "").trim().toLowerCase();
+        const password = ($("#regPassword").value || "");
+        ensureHandle(handle);
+        ensurePassword(password);
+        const res = await apiPost("/api/register", {handle, password});
+        applyAuth(res);
+        toast("Welcome — account created.", "ok");
+        closeModal();
+        await loadMe();
+        await refreshDiscover();
+      }
+
+      async function doLogin(){
+        const handle = ($("#loginHandle").value || "").trim().toLowerCase();
+        const password = ($("#loginPassword").value || "");
+        ensureHandle(handle);
+        if (!password) throw new Error("Password required");
+        const res = await apiPost("/api/login", {handle, password});
+        applyAuth(res);
+        toast("Signed in.", "ok");
+        closeModal();
+        await loadMe();
+        await refreshDiscover();
+      }
+
+      function applyAuth(res){
+        S.token = res.token || "";
+        S.uid = res.uid || "";
+        S.handle = res.handle || "";
+        S.expiresAt = Number(res.expires_at || 0);
+        store.save(S);
+        renderAuthState();
+      }
+
+      function clearAuth(){
+        S.token = "";
+        S.uid = "";
+        S.handle = "";
+        S.expiresAt = 0;
+        store.save(S);
+        renderAuthState();
+      }
+
+      function renderAuthState(){
+        const authed = !!S.token;
+        $("#btnAuth").textContent = authed ? "Signed in" : "Sign in";
+        $("#btnAuth").classList.toggle("primary", !authed);
+        $("#meTokenState").textContent = authed ? ("set • exp " + fmtTime(S.expiresAt)) : "none";
+        $("#meHandle").textContent = authed ? ("@" + S.handle) : "not signed in";
+        $("#meUid").textContent = authed ? S.uid : "";
+        $("#meAvatar").textContent = authed ? initials(S.handle) : "ME";
+      }
+
+      function ensureHandle(h){
+        if (!h || h.length < 3 || h.length > 24) throw new Error("Handle must be 3–24 chars");
+        if (!/^[a-z0-9_.]+$/.test(h)) throw new Error("Handle must be lowercase letters/numbers/_/.");
+        if (h.includes("..") || h.startsWith(".") || h.endsWith(".")) throw new Error("Handle cannot start/end with dot or have consecutive dots");
+      }
+
+      function ensurePassword(p){
+        if (!p || p.length < 8) throw new Error("Password must be at least 8 characters");
+        if (p.length > 128) throw new Error("Password too long");
+      }
+
+      // ---------------------------
+      // discover feed
+      // ---------------------------
+      const MODES = ["discover","fresh","quiet"];
+
+      function cycleMode(){
+        const i = MODES.indexOf(S.browseMode);
+        const next = MODES[(i + 1 + MODES.length) % MODES.length];
+        S.browseMode = next;
+        store.save(S);
+        $("#modeLabel").textContent = next;
+        toast("Mode set to " + next, "ok");
+      }
+
+      function renderCandidate(p){
+        const card = el("div",{class:"item"});
+        const top = el("div",{class:"top"});
