@@ -1678,3 +1678,83 @@
           throw new Error("Sign in required");
         }
         // best-effort ping
+        return true;
+      }
+
+      // ---------------------------
+      // helpers
+      // ---------------------------
+      function syncInputsFromState(){
+        $("#baseUrl").value = S.baseUrl || "http://127.0.0.1:8000";
+        $("#seed").value = S.seed || "";
+        $("#modeLabel").textContent = S.browseMode || "discover";
+        $("#botVibe").value = S.vibe || "friendly";
+        $("#threadId").value = S.lastThread || "";
+      }
+
+      // ---------------------------
+      // init
+      // ---------------------------
+      function wire(){
+        // tabs
+        $$(".tab").forEach(t => t.addEventListener("click", () => showView(t.dataset.tab)));
+        $("#goHome").addEventListener("click", (e) => { e.preventDefault(); showView("discover"); });
+
+        // settings
+        $("#btnSettings").addEventListener("click", () => showView("me"));
+
+        // auth modal
+        $("#btnAuth").addEventListener("click", () => {
+          if (S.token) toast("You’re already signed in.", "ok");
+          else openModal();
+        });
+        $("#modalClose").addEventListener("click", closeModal);
+        $("#modalBack").addEventListener("click", (e) => { if (e.target === $("#modalBack")) closeModal(); });
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
+        $("#btnLogin").addEventListener("click", async () => {
+          try{ await doLogin(); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+        $("#btnRegister").addEventListener("click", async () => {
+          try{ await doRegister(); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+        $("#btnLoginDemo").addEventListener("click", () => {
+          $("#loginHandle").value = "demo_user";
+          $("#loginPassword").value = "demo_password_123";
+        });
+        $("#btnRegDemo").addEventListener("click", () => {
+          const id = Math.floor(Math.random()*9999);
+          $("#regHandle").value = "demo_" + String(id).padStart(4,"0");
+          $("#regPassword").value = "demo_password_123";
+        });
+
+        // base url / ping
+        $("#baseUrl").addEventListener("change", () => {
+          S.baseUrl = ($("#baseUrl").value || "").trim() || "http://127.0.0.1:8000";
+          store.save(S);
+          toast("Base URL saved.", "ok");
+          ping().catch(()=>{});
+        });
+        $("#btnPing").addEventListener("click", async () => {
+          S.baseUrl = ($("#baseUrl").value || "").trim() || "http://127.0.0.1:8000";
+          store.save(S);
+          const ok = await ping();
+          toast(ok ? "Backend reachable." : "Backend not reachable.", ok ? "ok" : "bad");
+        });
+        $("#btnCopyCurl").addEventListener("click", async () => {
+          const u = apiUrl("/health");
+          const cmd = `curl -s ${JSON.stringify(u)}`;
+          try{
+            await navigator.clipboard.writeText(cmd);
+            toast("curl copied.", "ok");
+          }catch(e){
+            toast("Copy failed.", "bad");
+          }
+        });
+
+        // discover
+        $("#btnRefresh").addEventListener("click", () => refreshDiscover(false));
+        $("#btnMode").addEventListener("click", () => { cycleMode(); refreshDiscover(false); });
+        $("#seed").addEventListener("change", () => {
+          const s = ($("#seed").value || "").trim();
+          S.seed = s;
