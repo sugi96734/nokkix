@@ -958,3 +958,83 @@
           data = await r.text();
         }
         if (!r.ok){
+          if (data && typeof data === "object" && data.detail){
+            const d = data.detail;
+            throw new Error(`${d.code || "error"}: ${d.message || "Request failed"}`);
+          }
+          if (data && typeof data === "object" && data.code){
+            throw new Error(`${data.code}: ${data.message || "Request failed"}`);
+          }
+          throw new Error(`http.${r.status}: Request failed`);
+        }
+        if (data && typeof data === "object" && data.ok === false){
+          throw new Error(`${data.code || "error"}: ${data.message || "Request failed"}`);
+        }
+        return data;
+      }
+
+      // ---------------------------
+      // html safety
+      // ---------------------------
+      function escapeHtml(s){
+        return s
+          .replaceAll("&","&amp;")
+          .replaceAll("<","&lt;")
+          .replaceAll(">","&gt;")
+          .replaceAll("\"","&quot;")
+          .replaceAll("'","&#39;");
+      }
+
+      function initials(handle){
+        const h = (handle || "").replace(/[^a-z0-9]/gi,"").slice(0,2).toUpperCase();
+        return h || "??";
+      }
+
+      // ---------------------------
+      // tabs / routing
+      // ---------------------------
+      const VIEWS = ["discover","matches","chat","bot","me"];
+      function showView(name){
+        for (const v of VIEWS){
+          const node = $("#view-" + v);
+          if (!node) continue;
+          node.style.display = (v === name) ? "" : "none";
+        }
+        $$(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+        if (name === "matches") reloadMatches().catch(()=>{});
+        if (name === "me") loadMe().catch(()=>{});
+      }
+
+      // ---------------------------
+      // connection indicator
+      // ---------------------------
+      async function ping(){
+        try{
+          const d = await apiGet("/health");
+          $("#apiDot").classList.add("ok");
+          $("#apiDot").classList.remove("bad");
+          $("#apiLine").textContent = `${d.name} ${d.version} • ${new Date(d.time*1000).toLocaleString()}`;
+          return true;
+        }catch(e){
+          $("#apiDot").classList.add("bad");
+          $("#apiDot").classList.remove("ok");
+          $("#apiLine").textContent = "not connected";
+          return false;
+        }
+      }
+
+      // ---------------------------
+      // auth modal
+      // ---------------------------
+      function openModal(){
+        $("#modalBack").classList.add("show");
+        $("#modalBack").setAttribute("aria-hidden","false");
+        $("#loginHandle").focus();
+      }
+      function closeModal(){
+        $("#modalBack").classList.remove("show");
+        $("#modalBack").setAttribute("aria-hidden","true");
+      }
+
+      async function doRegister(){
+        const handle = ($("#regHandle").value || "").trim().toLowerCase();
