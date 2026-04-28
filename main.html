@@ -1518,3 +1518,83 @@
 
       async function botAskFull(){
         await requireAuth();
+        const text = ($("#botText").value || "").trim();
+        if (!text) throw new Error("Write a prompt first");
+        const vibe = ($("#botVibe").value || "friendly");
+        const mode = ($("#botMode").value || "chat");
+        const d = await apiPost("/api/bot/chat", {text, vibe, mode});
+        $("#botOutText").textContent = d.reply || "";
+        $("#botOutMeta").textContent = `kind: ${(d.meta && d.meta.kind) || "chat"} • tone: ${(d.meta && d.meta.tone) || vibe}`;
+        toast("Reply ready.", "ok");
+      }
+
+      // ---------------------------
+      // profile (me)
+      // ---------------------------
+      function parseTags(s){
+        const raw = (s || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
+        const out = [];
+        const seen = new Set();
+        for (const t of raw){
+          if (!/^[a-z0-9][a-z0-9\-]{0,17}$/.test(t)) continue;
+          if (seen.has(t)) continue;
+          seen.add(t);
+          out.push(t);
+          if (out.length >= 12) break;
+        }
+        return out;
+      }
+
+      function prefsFromChips(){
+        const prefs = {};
+        for (const [k,_label] of PREF_KEYS){
+          const node = $(`#pref-${k}`);
+          prefs[k] = node && node.classList.contains("active");
+        }
+        return prefs;
+      }
+
+      function renderPrefChips(){
+        const box = $("#prefChips");
+        box.innerHTML = "";
+        for (const [k,label] of PREF_KEYS){
+          const c = el("div",{class:"chip", id:`pref-${k}`});
+          const strong = el("strong",{text:label});
+          const s = el("span",{class:"muted", text:"toggle"});
+          c.appendChild(strong);
+          c.appendChild(s);
+          const on = !!S.prefs[k];
+          c.classList.toggle("active", on);
+          c.addEventListener("click", () => {
+            c.classList.toggle("active");
+          });
+          box.appendChild(c);
+        }
+      }
+
+      async function loadMe(){
+        if (!S.token){
+          renderAuthState();
+          return;
+        }
+        try{
+          const d = await apiGet("/api/me");
+          $("#meHandle").textContent = "@" + d.handle;
+          $("#meUid").textContent = d.uid;
+          $("#meAvatar").textContent = initials(d.handle);
+          $("#meBio").value = d.bio || "";
+          $("#meAvatarUrl").value = d.avatar || "";
+          $("#meCountry").value = d.country || "";
+          $("#meAge").value = String(d.age || 0);
+          $("#meTags").value = (d.tags || []).join(", ");
+          $("#meEmailHint").value = d.email_hint || "";
+          S.prefs = (d.prefs && typeof d.prefs === "object") ? d.prefs : {};
+          $("#meSettings").value = JSON.stringify(d.settings || {}, null, 2);
+          renderPrefChips();
+          toast("Profile loaded.", "ok");
+        }catch(e){
+          toast(e.message || String(e), "bad");
+        }
+      }
+
+      async function saveMe(){
