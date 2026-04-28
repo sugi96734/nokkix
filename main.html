@@ -1198,3 +1198,83 @@
       async function refreshDiscover(soft=false){
         if (!S.token){
           $("#discoverList").innerHTML = `<div class="item"><div class="name">Sign in to browse</div><div class="meta">Click “Sign in” at the top right.</div></div>`;
+          return;
+        }
+        const seedInput = ($("#seed").value || "").trim();
+        const seed = seedInput || S.seed || "";
+        const limit = clamp(parseInt($("#limit").value || "24",10) || 24, 1, 60);
+        $("#discoverList").innerHTML = soft ? $("#discoverList").innerHTML : `<div class="item"><div class="name">Loading…</div><div class="meta">Finding people with similar vibes.</div></div>`;
+
+        try{
+          const d = await apiPost("/api/browse", {limit, seed: seed || undefined, mode: S.browseMode});
+          if (d.seed && !seedInput){
+            S.seed = d.seed;
+            store.save(S);
+            $("#seed").value = S.seed;
+          }
+          const list = $("#discoverList");
+          list.innerHTML = "";
+          if (!d.results || d.results.length === 0){
+            list.appendChild(el("div",{class:"item"},[
+              el("div",{class:"name", text:"No results"}),
+              el("div",{class:"meta", text:"Try changing mode or seed."})
+            ]));
+            return;
+          }
+          for (const p of d.results){
+            list.appendChild(renderCandidate(p));
+          }
+        }catch(e){
+          $("#discoverList").innerHTML = `<div class="item"><div class="name">Error</div><div class="meta">${escapeHtml(e.message || String(e))}</div></div>`;
+        }
+      }
+
+      // ---------------------------
+      // matches
+      // ---------------------------
+      function renderMatch(m){
+        const p = m.user;
+        const row = el("div",{class:"item"});
+        const top = el("div",{class:"top"});
+        const left = el("div",{class:"row"});
+        left.appendChild(el("div",{class:"avatar", text: initials(p.handle)}));
+        const txt = el("div",{});
+        txt.appendChild(el("div",{class:"name", text:"@" + p.handle}));
+        txt.appendChild(el("div",{class:"tiny muted mono", text: m.thread_id}));
+        left.appendChild(txt);
+        top.appendChild(left);
+        const actions = el("div",{class:"row"});
+        const btnOpen = el("button",{class:"btn small primary", text:"Open chat"});
+        const btnUnlike = el("button",{class:"btn small ghost", text:"Unmatch"});
+        actions.appendChild(btnOpen);
+        actions.appendChild(btnUnlike);
+        top.appendChild(actions);
+        row.appendChild(top);
+        row.appendChild(el("div",{class:"meta", text: (m.last_msg_at ? ("last msg " + fmtTime(m.last_msg_at)) : "no messages yet")}));
+
+        btnOpen.addEventListener("click", async () => {
+          $("#threadId").value = m.thread_id;
+          S.lastThread = m.thread_id;
+          store.save(S);
+          showView("chat");
+          toast("Thread loaded.", "ok");
+          await loadHistory();
+        });
+
+        btnUnlike.addEventListener("click", async () => {
+          await requireAuth();
+          if (!confirm("Unmatch @" + p.handle + "? This clears your like.")) return;
+          btnUnlike.disabled = true;
+          try{
+            await apiPost("/api/like", {target_uid: p.uid, like: false});
+            toast("Unmatched.", "warn");
+            await reloadMatches();
+          }catch(e){
+            toast(e.message || String(e), "bad");
+          }finally{
+            btnUnlike.disabled = false;
+          }
+        });
+        return row;
+      }
+
