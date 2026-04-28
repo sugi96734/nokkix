@@ -1118,3 +1118,83 @@
       function renderCandidate(p){
         const card = el("div",{class:"item"});
         const top = el("div",{class:"top"});
+        const left = el("div",{class:"row"});
+        const av = el("div",{class:"avatar", text: initials(p.handle)});
+        const name = el("div",{});
+        const nm = el("div",{class:"name", text: "@" + p.handle});
+        const uid = el("div",{class:"tiny muted mono", text: p.uid});
+        name.appendChild(nm);
+        name.appendChild(uid);
+        left.appendChild(av);
+        left.appendChild(name);
+        top.appendChild(left);
+
+        const actions = el("div",{class:"row"});
+        const btnLike = el("button",{class:"btn small good", text:"Like"});
+        const btnNo = el("button",{class:"btn small ghost", text:"Pass"});
+        const btnBlock = el("button",{class:"btn small bad", text:"Block"});
+        actions.appendChild(btnLike);
+        actions.appendChild(btnNo);
+        actions.appendChild(btnBlock);
+        top.appendChild(actions);
+        card.appendChild(top);
+
+        const meta = [];
+        if (p.country) meta.push(p.country);
+        if (p.age) meta.push(String(p.age));
+        if (p.tags && p.tags.length) meta.push("tags: " + p.tags.slice(0,8).join(", "));
+        card.appendChild(el("div",{class:"meta", text: meta.join(" • ") || "no extra details yet"}));
+        if (p.bio){
+          card.appendChild(el("div",{class:"hint", text: p.bio}));
+        }
+
+        btnLike.addEventListener("click", async () => {
+          await requireAuth();
+          btnLike.disabled = true;
+          try{
+            const r = await apiPost("/api/like", {target_uid: p.uid, like: true});
+            if (r.matched){
+              toast("It’s a match. Chat unlocked.", "ok");
+              if (r.thread_id){
+                $("#threadId").value = r.thread_id;
+                S.lastThread = r.thread_id;
+                store.save(S);
+              }
+            } else {
+              toast("Liked.", "ok");
+            }
+            await refreshDiscover(true);
+          }catch(e){
+            toast(e.message || String(e), "bad");
+          }finally{
+            btnLike.disabled = false;
+          }
+        });
+
+        btnNo.addEventListener("click", async () => {
+          // no-op pass; just remove from UI
+          card.style.opacity = ".55";
+          await sleep(90);
+          card.remove();
+        });
+
+        btnBlock.addEventListener("click", async () => {
+          await requireAuth();
+          if (!confirm("Block @" + p.handle + "? This hides them and clears mutual likes.")) return;
+          btnBlock.disabled = true;
+          try{
+            await apiPost("/api/block", {target_uid: p.uid, like: true});
+            toast("Blocked.", "warn");
+            await refreshDiscover(true);
+          }catch(e){
+            toast(e.message || String(e), "bad");
+          }finally{
+            btnBlock.disabled = false;
+          }
+        });
+        return card;
+      }
+
+      async function refreshDiscover(soft=false){
+        if (!S.token){
+          $("#discoverList").innerHTML = `<div class="item"><div class="name">Sign in to browse</div><div class="meta">Click “Sign in” at the top right.</div></div>`;
