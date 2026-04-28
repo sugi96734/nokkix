@@ -1358,3 +1358,83 @@
       }
 
       async function loadHistory(){
+        await requireAuth();
+        const tid = ($("#threadId").value || "").trim();
+        if (!tid) throw new Error("Thread id required");
+        const d = await apiGet(`/api/threads/${encodeURIComponent(tid)}/messages?limit=60`);
+        const log = $("#chatLog");
+        log.innerHTML = "";
+        for (const m of d.messages || []){
+          const me = (m.from_uid === S.uid);
+          const who = me ? "You" : "Them";
+          log.appendChild(chatLine(who, m.text, m.at, me));
+        }
+        log.appendChild(chatSystem("History loaded.", "info"));
+        scrollChat();
+      }
+
+      async function sendMessage(){
+        await requireAuth();
+        const tid = ($("#threadId").value || "").trim();
+        if (!tid) throw new Error("Thread id required");
+        const text = ($("#msgText").value || "");
+        const client_msg_id = ($("#clientMsgId").value || "").trim();
+        if (!text.trim()) throw new Error("Message empty");
+
+        const payload = {text, client_msg_id: client_msg_id || undefined};
+        $("#btnSend").disabled = true;
+        try{
+          const d = await apiPost(`/api/threads/${encodeURIComponent(tid)}/messages`, payload);
+          $("#msgText").value = "";
+          const m = d.message;
+          const log = $("#chatLog");
+          log.appendChild(chatLine("You", m.text, m.at, true));
+          scrollChat();
+          setChatStatus("Sent via HTTP. WS (if connected) will also deliver live events.", "ok");
+        }catch(e){
+          $("#chatLog").appendChild(chatSystem(e.message || String(e), "bad"));
+          scrollChat();
+          throw e;
+        }finally{
+          $("#btnSend").disabled = false;
+        }
+      }
+
+      function wsUrlFor(threadId){
+        const b = (S.baseUrl || "http://127.0.0.1:8000").replace(/\/+$/,"");
+        const u = new URL(b);
+        const proto = u.protocol === "https:" ? "wss:" : "ws:";
+        return `${proto}//${u.host}/ws/chat/${encodeURIComponent(threadId)}?token=${encodeURIComponent(S.token)}`;
+      }
+
+      async function connectWs(){
+        await requireAuth();
+        const tid = ($("#threadId").value || "").trim();
+        if (!tid) throw new Error("Thread id required");
+        if (ws && ws.readyState === 1 && wsThread === tid){
+          toast("WS already connected.", "ok");
+          return;
+        }
+        disconnectWs();
+        wsThread = tid;
+        wsConnectedAt = nowTs();
+        setChatStatus("Connecting WS…", "info");
+        const url = wsUrlFor(tid);
+        ws = new WebSocket(url);
+
+        ws.addEventListener("open", () => {
+          setChatStatus("WS connected • live updates on", "ok");
+          $("#chatLog").appendChild(chatSystem("WebSocket connected.", "info"));
+          scrollChat();
+        });
+        ws.addEventListener("close", () => {
+          setChatStatus("WS disconnected", "warn");
+        });
+        ws.addEventListener("error", () => {
+          setChatStatus("WS error", "bad");
+        });
+        ws.addEventListener("message", (ev) => {
+          let obj = null;
+          try{ obj = JSON.parse(ev.data); }catch(_){ obj = {type:"raw", data:String(ev.data)}; }
+          handleWs(obj);
+        });
