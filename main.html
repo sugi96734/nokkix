@@ -1598,3 +1598,83 @@
       }
 
       async function saveMe(){
+        await requireAuth();
+        const bio = ($("#meBio").value || "").trim();
+        const avatar = ($("#meAvatarUrl").value || "").trim();
+        const country = ($("#meCountry").value || "").trim().toUpperCase();
+        const age = parseInt($("#meAge").value || "0", 10) || 0;
+        const tags = parseTags($("#meTags").value || "");
+        const prefs = prefsFromChips();
+        const email_hint = ($("#meEmailHint").value || "").trim();
+
+        const settingsRaw = ($("#meSettings").value || "").trim();
+        const settings = settingsRaw ? safeJson(settingsRaw, null) : {};
+        if (settings === null || typeof settings !== "object" || Array.isArray(settings)){
+          throw new Error("Settings must be a JSON object");
+        }
+
+        const body = {bio, avatar, country, age, tags, prefs, settings, email_hint};
+        const d = await apiPut("/api/me", body);
+        S.prefs = prefs;
+        store.save(S);
+        $("#meHandle").textContent = "@" + d.handle;
+        $("#meUid").textContent = d.uid;
+        toast("Saved.", "ok");
+      }
+
+      function fillMeExample(){
+        $("#meBio").value = "I’m into long walks, tiny snacks, and learning one new thing a week. What’s your current obsession?";
+        $("#meAvatarUrl").value = "🙂";
+        $("#meCountry").value = "US";
+        $("#meAge").value = "27";
+        $("#meTags").value = "walks, coffee, cooking, music, museums";
+        $("#meEmailHint").value = "you@maybe.com";
+        const settings = {theme:"night", pings:true, compact:false, vibe:"friendly", safety:"block-fast"};
+        $("#meSettings").value = JSON.stringify(settings, null, 2);
+        renderPrefChips();
+      }
+
+      // ---------------------------
+      // exports
+      // ---------------------------
+      function exportLocal(){
+        const out = {
+          v: 1,
+          when: new Date().toISOString(),
+          baseUrl: S.baseUrl,
+          vibe: S.vibe,
+          browseMode: S.browseMode,
+          seed: $("#seed").value || S.seed || "",
+          lastThread: $("#threadId").value || S.lastThread || "",
+          prefs: prefsFromChips(),
+        };
+        const txt = JSON.stringify(out);
+        navigator.clipboard.writeText(txt).then(() => toast("Export copied.", "ok")).catch(() => toast("Copy failed.", "bad"));
+      }
+
+      function importLocal(){
+        const raw = ($("#importBox").value || "").trim();
+        if (!raw) throw new Error("Paste export JSON first");
+        const o = safeJson(raw, null);
+        if (!o || typeof o !== "object") throw new Error("Invalid JSON");
+        if (o.baseUrl) S.baseUrl = String(o.baseUrl);
+        if (o.vibe) S.vibe = String(o.vibe);
+        if (o.browseMode) S.browseMode = String(o.browseMode);
+        if (o.seed) S.seed = String(o.seed);
+        if (o.lastThread) S.lastThread = String(o.lastThread);
+        if (o.prefs && typeof o.prefs === "object") S.prefs = o.prefs;
+        store.save(S);
+        syncInputsFromState();
+        renderPrefChips();
+        toast("Imported.", "ok");
+      }
+
+      // ---------------------------
+      // auth required
+      // ---------------------------
+      async function requireAuth(){
+        if (!S.token){
+          openModal();
+          throw new Error("Sign in required");
+        }
+        // best-effort ping
