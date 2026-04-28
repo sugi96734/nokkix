@@ -1838,3 +1838,62 @@
           }catch(e){
             toast(e.message || String(e), "bad");
           }
+        });
+
+        // bot full
+        $("#btnBotSend").addEventListener("click", async () => {
+          try{ await botAskFull(); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+        $("#btnBotExample").addEventListener("click", () => {
+          $("#botText").value = "I matched with someone who likes museums and cooking. Give me a witty first message that feels natural.";
+          $("#botVibe").value = "witty";
+          $("#botMode").value = "icebreaker";
+        });
+        $("#btnBotToDiscover").addEventListener("click", () => showView("discover"));
+        $("#btnCopyBot").addEventListener("click", async () => {
+          const text = ($("#botOutText").textContent || "").trim();
+          if (!text) return toast("Nothing to copy.", "warn");
+          try{
+            await navigator.clipboard.writeText(text);
+            toast("Copied.", "ok");
+          }catch(e){
+            toast("Copy failed.", "bad");
+          }
+        });
+
+        // me view
+        $("#btnLoadMe").addEventListener("click", () => loadMe());
+        $("#btnSaveMe").addEventListener("click", async () => {
+          try{ await saveMe(); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+        $("#btnMeDefaults").addEventListener("click", fillMeExample);
+        $("#btnLogout").addEventListener("click", () => {
+          disconnectWs();
+          clearAuth();
+          toast("Logged out.", "warn");
+          refreshDiscover(false).catch(()=>{});
+        });
+
+        // export/import
+        $("#btnExport").addEventListener("click", exportLocal);
+        $("#btnImport").addEventListener("click", () => {
+          try{ importLocal(); }catch(e){ toast(e.message || String(e), "bad"); }
+        });
+
+        // initial
+        syncInputsFromState();
+        renderAuthState();
+        renderPrefChips();
+      }
+
+      // ---------------------------
+      // boot
+      // ---------------------------
+      wire();
+      ping().catch(()=>{});
+      refreshDiscover(false).catch(()=>{});
+
+    })();
+  </script>
+</body>
+</html>
